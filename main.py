@@ -11,9 +11,18 @@ client = valorant.Client(key, region="eu", locale=None)
 intents = nextcord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+cogs = [
+    "cogs.events",
+]
+
 @bot.event
 async def on_ready():
     print("Ready!")
+
+if __name__ == "__main__":
+
+    for cog in cogs:
+        bot.load_extension(cog)
 
 @bot.slash_command(guild_ids=[1113264588545331242])
 async def rank(interaction : nextcord.Interaction, player : str):
