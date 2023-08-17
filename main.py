@@ -13,7 +13,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 cogs = [
     "cogs.commands",
-    "cogs.events"
+    "cogs.events",
+    "cogs.match_history",
 ]
 
 @bot.event

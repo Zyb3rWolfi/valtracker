@@ -1,12 +1,31 @@
 import nextcord
 from nextcord.ext import commands
-import valorant
 import os
 import sqlite3
 import requests
+from cogs import api
 
 database = sqlite3.connect("database.db")
 cursor = database.cursor()
+
+ranks = [
+    ["Silver 1", "<:Silver1:1139292134193774683>"],
+    ["Silver 2", "<:Silver2:1139292136928456754>"],
+    ["Silver 3", "<:Silver3:1139292115403280474>"],
+    ["Gold 1", "<:Gold1:1139292125033410692>"],
+    ["Gold 2", "<:Gold2:1139292108075839619>"],
+    ["Gold 3", "<:Gold3:1139292113117401198>"],
+    ["Platinum 1", "<:Platinum1:1139292122495852636>"],
+    ["Platinum 2", "<:Platinum2:1139292111582269540>"],
+    ["Platinum 3", "<:Platinum3:1138237183787008010>"],
+    ["Diamond 1", "<:Diamond1:1139292120407101541>"],
+    ["Diamond 2", "<:Diamond2:1139292116888068207>"],
+    ["Diamond 3", "<:Diamond3:1139292135615635586>"],
+    ["Ascendant 1", "<:Ascendant1:1139292118943277094>"],
+    ["Ascendant 2", "<:Ascendant2:1139292139851894824>"],
+    ["Ascendant 3", "<:Ascendant3:1139292110386909344>"],
+
+]
 
 class Commands(commands.Cog):
 
@@ -145,12 +164,16 @@ class Commands(commands.Cog):
         url = "https://api.henrikdev.xyz/valorant/v1/account/" + username + "/" + tag
         response = requests.get(url)
         playercard = response.json()["data"]["card"]["small"]
+        emoji = ""
 
+        for i in ranks:
+            if i[0] == rank:
+                emoji = i[1]
         # Embed creation
         embed = nextcord.Embed(title="Competitive Career Stats", description="", color=nextcord.Color.red())
         embed.set_author(name=username + "#" + tag, icon_url=playercard)
         embed.set_thumbnail(url=playercard)
-        embed.add_field(name="Rank", value=f"{rank} <:plat3:1138237183787008010>", inline=True)
+        embed.add_field(name="Rank", value=f"{rank} {emoji}", inline=True)
         embed.add_field(name="K/D", value=round(kills/deaths, 2), inline=True)
         embed.add_field(name="KDA", value=round((kills + assists) / deaths, 2), inline=True)
         embed.add_field(name="Kills", value=kills, inline=True)
@@ -159,6 +182,15 @@ class Commands(commands.Cog):
         embed.add_field(name="Most Kills", value=most_kills, inline=True)
         embed.add_field(name="Playtime", value=f"{playtime} Hours", inline=True)
         await interaction.response.send_message(embed=embed)
+    
+    @nextcord.slash_command(guild_ids=[1113264588545331242])
+    async def test(self, interaction : nextcord.Interaction):
+
+        account = api.Requests(os.environ["KEY"])
+        account = account.get_account("8544041b-1b99-50ac-bd16-2cab1ee452f9")
+        await interaction.response.send_message(account["data"]["name"])
+
+
 
 def setup(bot):
 
