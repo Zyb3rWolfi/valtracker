@@ -1,18 +1,19 @@
 import nextcord
 from nextcord.ext import commands
-import requests
 import os
-import valorant
-import json
+import sqlite3
 
-key = os.environ["KEY"]
-client = valorant.Client(key, region="eu", locale=None)
+database = sqlite3.connect("database.db")
+cursor = database.cursor()
+cursor.execute("CREATE TABLE IF NOT EXISTS users(name TEXT, tag TEXT, uuid TEXT, kills INTEGER, deaths INTEGER, assists INTEGER, rank TEXT, most_kills INTEGER, playtime INTEGER)")
+
 
 intents = nextcord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 cogs = [
-    "cogs.events",
+    "cogs.commands",
+    "cogs.events"
 ]
 
 @bot.event
@@ -23,22 +24,6 @@ if __name__ == "__main__":
 
     for cog in cogs:
         bot.load_extension(cog)
-
-@bot.slash_command(guild_ids=[1113264588545331242])
-async def rank(interaction : nextcord.Interaction, player : str):
-
-    user = client.get_user_by_name(player)
-    match = user.matchlist().history.find(queueId="competitive")
-
-    match = match.get()
-
-    for team in match.teams:
-
-        players = match.players.get_all(teamId=team.teamId)
-
-        for player in players:
-            
-            await interaction.response.send_message(f"{player.gameName} is {player.rank}")
 
 
 
